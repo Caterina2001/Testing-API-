@@ -1,0 +1,26 @@
+
+version: '3.4'
+
+services:
+  sampleapi:
+    image: sampleapi
+    build:
+      context: .
+      dockerfile: sample-api/Dockerfile
+    ports:
+      - 8080:8080
+
+  tests:
+    image: functional-tests
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    entrypoint: newman
+    command: run Integration-tests.postman_collection.json  --environment=integration-environment.postman_environment.json --env-var="BaseUrl=http://sampleapi:8080" --reporters cli,json,junit --reporter-junit-export /data/results/TEST-Integration-Report.xml  --reporter-json-export /data/results/outputfile.json
+    volumes:
+      - results:/data/results
+    depends_on:
+      - sampleapi
+
+volumes:
+  results:
